@@ -85,7 +85,7 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.build.finalName}.jar</include>
+                                    <include>foxtrot-server.jar</include>
                                 </resource>
                                 <resource>
                                     <targetPath>/</targetPath>
