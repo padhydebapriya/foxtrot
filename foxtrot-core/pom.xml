@@ -66,13 +66,13 @@
             <version>3.5.3</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
             <version>3.5.3</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
 
         <!--Internal-->
