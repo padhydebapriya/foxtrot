@@ -26,6 +26,7 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.spi.FilterAttachable;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -101,6 +102,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         root.addAppender(AsyncAppender.wrap(setupLogging(file, root.getLoggerContext(), file.getLogFormat(), configuration.getMaxLogFileSize())));
 
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
 
         HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
