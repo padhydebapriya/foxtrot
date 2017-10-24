@@ -45,11 +45,15 @@ public class FoxtrotServerConfiguration extends Configuration {
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
 
+    @Valid
+    private final String maxLogFileSize;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
+        this.maxLogFileSize = "1GB";
     }
 
     public HbaseConfig getHbase() {
@@ -66,5 +70,9 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     public DataDeletionManagerConfig getTableDataManagerConfig() {
         return deletionManagerConfig;
+    }
+
+    public String getMaxLogFileSize() {
+        return maxLogFileSize;
     }
 }

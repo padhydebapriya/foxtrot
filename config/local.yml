@@ -27,3 +27,5 @@ deletionconfig:
   active: true
   interval: 86400
   initialdelay: 60
+
+maxLogFileSize: 100MB

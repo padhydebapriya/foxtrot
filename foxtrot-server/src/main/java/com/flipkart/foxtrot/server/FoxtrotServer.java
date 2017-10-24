@@ -98,7 +98,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         Logger root =  (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
         LoggingConfiguration loggingConfiguration  = configuration.getLoggingConfiguration();
         LoggingConfiguration.FileConfiguration file = loggingConfiguration.getFileConfiguration();
-        root.addAppender(AsyncAppender.wrap(setupLogging(file, root.getLoggerContext(), file.getLogFormat())));
+        root.addAppender(AsyncAppender.wrap(setupLogging(file, root.getLoggerContext(), file.getLogFormat(), configuration.getMaxLogFileSize())));
 
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
@@ -162,7 +162,8 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
     private FileAppender<ILoggingEvent> setupLogging(LoggingConfiguration.FileConfiguration file,
                                                      LoggerContext context,
-                                                     com.google.common.base.Optional<String> logFormat) {
+                                                     com.google.common.base.Optional<String> logFormat,
+                                                     String maxLogFileSize) {
 
         final LogFormatter formatter = new LogFormatter(context, file.getTimeZone());
 
@@ -185,7 +186,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         if (file.isArchive()) {
 
-            SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy("100MB");
+            SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy(maxLogFileSize);
 
             final FixedWindowRollingPolicy windowRollingPolicy = new FixedWindowRollingPolicy();
             windowRollingPolicy.setMinIndex(0);
