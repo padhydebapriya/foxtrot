@@ -21,9 +21,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
-import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.rolling.*;
 import ch.qos.logback.core.spi.FilterAttachable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -186,23 +184,26 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         addThresholdFilter(appender, file.getThreshold());
 
-        if (file.isArchive()) {
+        //if (file.isArchive()) {
+        SizeAndTimeBasedFNATP<ILoggingEvent> triggeringPolicy = new SizeAndTimeBasedFNATP<ILoggingEvent>();
+        triggeringPolicy.setMaxFileSize(maxLogFileSize); //set as per your need
 
-            SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy(maxLogFileSize);
+        final TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<ILoggingEvent>();
+        rollingPolicy.setContext(context);
+        rollingPolicy.setFileNamePattern(file.getArchivedLogFilenamePattern());
+        rollingPolicy.setTimeBasedFileNamingAndTriggeringPolicy(
+                triggeringPolicy); //set trigger policy as size and time based or only one of factor.
+        rollingPolicy.setMaxHistory(file.getArchivedFileCount());
+        triggeringPolicy.setTimeBasedRollingPolicy(rollingPolicy);
 
-            final FixedWindowRollingPolicy windowRollingPolicy = new FixedWindowRollingPolicy();
-            windowRollingPolicy.setMinIndex(0);
-            windowRollingPolicy.setMaxIndex(file.getArchivedFileCount());
-            String filePattern = file.getArchivedLogFilenamePattern().replaceAll("-%d\\{.*\\}","");
-            windowRollingPolicy.setFileNamePattern(filePattern);
-            windowRollingPolicy.setContext(context);
 
-            ((RollingFileAppender<ILoggingEvent>) appender).setRollingPolicy(windowRollingPolicy);
-            ((RollingFileAppender<ILoggingEvent>) appender).setTriggeringPolicy(triggeringPolicy);
+        ((RollingFileAppender<ILoggingEvent>) appender).setRollingPolicy(rollingPolicy);
+        ((RollingFileAppender<ILoggingEvent>) appender).setTriggeringPolicy(triggeringPolicy);
 
-            windowRollingPolicy.setParent(appender);
-            windowRollingPolicy.start();
-        }
+
+        rollingPolicy.setParent(appender);
+        rollingPolicy.start();
+        //}
 
         appender.stop();
         appender.start();
