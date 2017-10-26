@@ -82,6 +82,11 @@ import java.util.concurrent.TimeUnit;
 
 @CoverageIgnore
 public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
+
+    public static void main(String[] args) throws Exception {
+        new FoxtrotServer().run(args);
+    }
+
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setName("foxtrot");
@@ -94,10 +99,13 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         configuration.getHttpConfiguration().setRootPath("/foxtrot/*");
         configureObjectMapper(environment);
 
+        //Set logging configuration
         Logger root =  (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
         LoggingConfiguration loggingConfiguration  = configuration.getLoggingConfiguration();
         LoggingConfiguration.FileConfiguration file = loggingConfiguration.getFileConfiguration();
+        LoggingConfiguration.FileConfiguration requestLogFile = configuration.getHttpConfiguration().getRequestLogConfiguration().getFileConfiguration();
         root.addAppender(AsyncAppender.wrap(setupLogging(file, root.getLoggerContext(), file.getLogFormat(), configuration.getMaxLogFileSize())));
+        root.addAppender(AsyncAppender.wrap(setupLogging(requestLogFile, root.getLoggerContext(), requestLogFile.getLogFormat(), configuration.getMaxLogFileSize())));
 
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
